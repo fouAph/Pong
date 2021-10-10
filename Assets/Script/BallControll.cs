@@ -9,17 +9,21 @@ public class BallControll : MonoBehaviour
     // Titik asal lintasan bola saat ini
     private Vector2 trajectoryOrigin;
 
-    //maksimal kecepatan bola
-    public float maxBallSpeed;
+    //Kecepatan bola di awal
+    [Tooltip("Kecepatan awal bola")]
+    public float initialBallMagnitudSpeed = 10;
+
+    //maksimal kecepatan bola, walaupun mendapat gaya tambahan dari raket
+    [Tooltip("Maksimal kecepatan bola")]
+    public float maxBallMagnitudeSpeed;
 
     // Besarnya gaya awal yang diberikan untuk mendorong bola
     public float xInitialForce;
     public float yInitialForce;
 
-    [Header("Private Variable"), Space(10)]
+    [Header("Private Variable/Debugging"), Space(10)]
     [SerializeField] float ballVelocity;
     [SerializeField] bool isGoingLeft;
-    [SerializeField] int impactLeft;
 
     void Start()
     {
@@ -34,9 +38,9 @@ public class BallControll : MonoBehaviour
     {
         ballVelocity = rigidBody2D.velocity.magnitude;
 
-        if (rigidBody2D.velocity.magnitude > maxBallSpeed)
+        if (rigidBody2D.velocity.magnitude > maxBallMagnitudeSpeed)
         {
-            rigidBody2D.velocity = Vector2.ClampMagnitude(rigidBody2D.velocity, maxBallSpeed);
+            rigidBody2D.velocity = Vector2.ClampMagnitude(rigidBody2D.velocity, maxBallMagnitudeSpeed);
         }
     }
 
@@ -62,12 +66,12 @@ public class BallControll : MonoBehaviour
         if (randomDirection < 1.0f)
         {
             // Gunakan gaya untuk menggerakkan bola ini.
-            rigidBody2D.AddForce(new Vector2(-xInitialForce, yRandomInitialForce), ForceMode2D.Force);
+            rigidBody2D.AddForce(new Vector2(-xInitialForce, yRandomInitialForce).normalized * (initialBallMagnitudSpeed * 10) / 2, ForceMode2D.Force);
         }
 
         else
         {
-            rigidBody2D.AddForce(new Vector2(xInitialForce, yRandomInitialForce), ForceMode2D.Force);
+            rigidBody2D.AddForce(new Vector2(xInitialForce, yRandomInitialForce).normalized * (initialBallMagnitudSpeed * 10) / 2, ForceMode2D.Force);
             // rigidBody2D.AddForce()
         }
     }
@@ -90,9 +94,6 @@ public class BallControll : MonoBehaviour
 
         if (collision.gameObject.tag == "Player")
         {
-            // print(collision.transform.name);
-            //untuk mencegah arah bola ketika hanya memantul 1 arah (Sumbu x)
-            //jika waktu sejak bola tidak menyentuh player, maka arah bola akan berubah secara acak
             if (collision.gameObject.name == "Player1")
             {
                 isGoingLeft = false;
